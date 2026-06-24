@@ -222,13 +222,20 @@ def load_metadata(path: str, sample_ids) -> pd.DataFrame:
     meta["age"] = pd.to_numeric(meta["age"], errors="coerce")
     meta["sex"] = _normalize_sex(meta["sex"])
 
-    missing = sorted(set(map(str, sample_ids)) - set(meta.index))
+    requested = list(map(str, sample_ids))
+    available = [s for s in requested if s in meta.index]
+    missing = [s for s in requested if s not in meta.index]
     if missing:
-        raise ValueError(
-            f"{len(missing)} sample(s) in the beta matrix have no metadata, "
-            f"e.g. {missing[:5]}"
+        warnings.warn(
+            f"{len(missing)}/{len(requested)} sample(s) in the beta matrix have "
+            f"no metadata and will be skipped, e.g. {missing[:5]}"
         )
-    return meta.loc[list(map(str, sample_ids))]
+    if not available:
+        raise ValueError(
+            "None of the beta-matrix samples have matching metadata; "
+            "check that the id columns are consistent."
+        )
+    return meta.loc[available]
 
 
 # --------------------------------------------------------------------------- #
@@ -543,6 +550,11 @@ def run(args: argparse.Namespace) -> pd.DataFrame:
         )
 
     meta = load_metadata(args.metadata, sample_ids)
+    # Skip samples without metadata: keep only those biolearn can score.
+    if list(meta.index) != sample_ids:
+        sample_ids = list(meta.index)
+        betas = betas[sample_ids]
+        print(f"[info] proceeding with {len(sample_ids)} samples that have metadata")
 
     # ---- biolearn official prediction (authoritative final value) ---------- #
     geo = GeoData(metadata=meta.copy(), dnam=betas.copy())
