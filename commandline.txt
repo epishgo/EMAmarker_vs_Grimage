@@ -1,0 +1,4 @@
+python grimage_v2_surrogates.py \
+    --betas /Users/shingo.omori/Github.com/Developer/marker_model_training_and_inference/data/heavy/Mvalues_holdout_hard.parquet \
+    --metadata data/ALL_metadata_for_holdout_hard.csv \
+    --output output/grimage_v2_wide.csv --imputation sesame_450k

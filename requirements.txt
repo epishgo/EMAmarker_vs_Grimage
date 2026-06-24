@@ -1,0 +1,14 @@
+# Requirements for grimage_v2_surrogates.py
+# Python 3.10+ required (biolearn's minimum). Tested on Python 3.12.
+#
+# biolearn imports `seaborn` and `torch` at module-load time (via
+# data_library / model_gallery), but does not declare them as hard
+# dependencies, so they are listed explicitly below.
+
+biolearn==0.9.1   # GrimAge V2 coefficients + model implementation (ModelGallery, GeoData, get_data_file)
+numpy==2.5.0      # numeric arrays / NaN handling
+pandas==3.0.3     # DataFrame I/O and the wide-format assembly
+pyarrow==24.0.0   # parquet engine for pandas read_parquet / to_parquet
+                  #   (swap for `fastparquet` if that is your environment's engine)
+seaborn==0.13.2   # imported by biolearn.data_library at load time
+torch==2.12.1     # imported by biolearn.model at load time
